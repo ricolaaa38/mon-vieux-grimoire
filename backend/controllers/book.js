@@ -62,6 +62,33 @@ exports.deleteBook = (req, res, next) => {
     });
 };
 
+exports.rateBook = (req, res, next) => {
+    const user = req.body.userId;
+    if (user !== req.auth.userId) {
+        res.status(401).json({ message: 'Not authorized !' })
+    } else {
+        Book.findOne({ _id: req.params.id})
+        .then(book => {
+            book.ratings.push({
+                userId: req.auth.userId,
+                grade: req.body.rating
+            });
+        
+        let totalRating = book.ratings.reduce((acc, rating) => acc + rating.grade, 0);
+
+        book.averageRating = totalRating / book.ratings.length;
+
+        return book.save();
+        })
+        .then(book => { res.status(201).json({ book })})
+        .catch(error => {res.status(500).json({ error })});
+    }  
+};
+
+exports.bestRatedBooks = (req, res, next) => {
+
+};
+
 exports.getAllBooks = (req, res, next) => {
     Book.find()
     .then(books => res.status(200).json(books))
