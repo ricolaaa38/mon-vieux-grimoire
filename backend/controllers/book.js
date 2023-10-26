@@ -80,13 +80,15 @@ exports.rateBook = (req, res, next) => {
 
         return book.save();
         })
-        .then(book => { res.status(201).json({ book })})
+        .then(book => { res.status(201).json( book )})
         .catch(error => {res.status(500).json({ error })});
     }  
 };
 
 exports.bestRatedBooks = (req, res, next) => {
-
+    Book.find().sort({averageRating: -1}).limit(3)
+    .then(books => res.status(200).json(books))
+    .catch(error => res.status(401).json({ error }));
 };
 
 exports.getAllBooks = (req, res, next) => {
