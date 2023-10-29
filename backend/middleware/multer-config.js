@@ -1,5 +1,5 @@
 const multer = require('multer');
-
+const sharp = require('sharp');
 
 const MIME_TYPES = {
     'image/jpg': 'jpg',
@@ -16,7 +16,29 @@ const storage = multer.diskStorage({
         const extension = MIME_TYPES[file.mimetype];
         callback(null, name + Date.now() + '.' + extension);
     },
-   
 });
 
-module.exports = multer({storage: storage}).single('image');
+const upload = multer({storage: storage}).single('image');
+
+const sizeImage = async (req, res, next) => {
+    if (!req.file) {
+        return next();
+    } else {
+        try {
+            const buffer = await sharp(req.file.path)
+            .resize({width: 220, height: 360, fit: 'fill'})
+            .jpeg({ quality: 100})
+            .toBuffer();
+
+            await sharp(buffer).toFile(`images/${req.file.filename}`);
+
+            next();
+        }
+        catch (error) {
+            console.log(error);
+            res.status(500).json({ error: error });
+        }
+    }
+}
+
+module.exports = {upload, sizeImage};
