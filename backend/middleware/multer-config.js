@@ -27,7 +27,7 @@ const sizeImage = async (req, res, next) => {
         try {
             const buffer = await sharp(req.file.path)
             .resize({width: 220, height: 360, fit: 'fill'})
-            .jpeg({ quality: 100})
+            .jpeg({ quality: 80})
             .toBuffer();
 
             await sharp(buffer).toFile(`images/${req.file.filename}`);
